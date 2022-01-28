@@ -1,4 +1,4 @@
-CXX=CC
+CXX=mpic++
 BIN=bin
 OBJ=obj
 SRC=src
@@ -24,7 +24,7 @@ _DEPS = kmeans.hpp
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 $(BIN)/tests : $(TESTS)/tests.cpp $(DEPS)
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $< -lmpi
 
 $(OBJ)/%.o : $(SRC)/%.cpp $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<

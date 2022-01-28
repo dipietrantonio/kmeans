@@ -44,7 +44,7 @@ void test_corner_case_1(){
 
 void test_with_dataset(){
     std::vector<Point<2u>> dataset;
-    read_dataset(dataset, "tests/dataset.txt");
+    read_dataset(dataset, "../dataset.txt");
     float epval[] {-0.08349970350381591f, -0.08535355221426252f, 1.0730989137683584f, 1.0762199531299013f};
     std::vector<Point<2>> centres;
     std::vector<int> assignment;
@@ -52,6 +52,7 @@ void test_with_dataset(){
     std::tie(centres, assignment) = kmeans(dataset, 2);
     auto end = std::chrono::steady_clock::now();
     std::cout << "Kmeans execution time: " << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << std::endl;
+    for(auto c : centres) std::cerr << c << std::endl;
     if(centres[0].distance(Point<2u>(epval)) >= 1e-5) throw std::exception();
     if(centres[1].distance(Point<2u>(epval+2)) >= 1e-5) throw std::exception();
 }

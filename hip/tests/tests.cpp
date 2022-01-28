@@ -44,7 +44,7 @@ void test_corner_case_1(){
 
 void test_with_dataset(){
     std::vector<Point<2u>> dataset;
-    read_dataset(dataset, "dataset_10m.txt");
+    read_dataset(dataset, "../dataset.txt");
 float epval[] {49.98271635764928, 0.10708045202278996, -49.993860054024786, -0.1158879815424888};
     std::vector<Point<2>> centres;
     std::vector<int> assignment;

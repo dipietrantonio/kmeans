@@ -115,7 +115,7 @@ class KMeansPlotResultsTestCase(unittest.TestCase):
 
 
     def test_timer(self):
-        D = read_dataset('data/dataset.txt')
+        D = read_dataset('../dataset.txt')
         timer = Timer()
         with timer:
             centers, assignment = kmeans(D, 2)

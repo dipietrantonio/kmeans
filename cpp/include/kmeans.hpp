@@ -26,16 +26,16 @@ template <unsigned int dim>
 class Point {
 
     protected:
-    float coord[dim];
+    double coord[dim];
 
     public:
     
     Point(){
-        memset(coord, 0, sizeof(float) * dim);
+        memset(coord, 0, sizeof(double) * dim);
     };
 
 
-    Point(float *coord){
+    Point(double *coord){
         for(unsigned int i {0u}; i < dim; i++)
             this->coord[i] = coord[i];
     };
@@ -118,7 +118,7 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
     if(dataset.size() >= world_size){
         n_local_points = (dataset.size() + world_size - 1) / world_size;
         start = n_local_points * world_rank;
-        stop = world_rank == world_size - 1 ? dataset.size() : (n_local_points * (world_rank + 1));
+        stop = (world_rank == world_size - 1) ? dataset.size() : (n_local_points * (world_rank + 1));
     }else if(world_rank < dataset.size()){
         n_local_points = 1;
         start = world_rank;
@@ -128,18 +128,20 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
     }
     
     std::vector<int> assignment(stop - start, -1);
-    float init_value[dim] {};
+    double init_value[dim] {};
     bool converged;
     bool *all_converged = new bool[world_size];
     // temporary storage
     std::vector<size_t> counters (K, 0);
     do{
+
+        if(world_rank == 0) std::cout << "centres: " << centres[0] << ", " << centres[1] << ";" << std::endl;
         converged = true;
         for(size_t i {start}; i < stop; i++){
             Point<dim>& p {dataset[i]};
             float best_dist {p.distance(centres[0])};
-            unsigned int chosen_centre {0u};
-            for(size_t j {1u}; j < centres.size(); j++){
+            int chosen_centre {0};
+            for(int j {1}; j < centres.size(); j++){
                 float dist {p.distance(centres[j])};
                 if(dist < best_dist){
                     best_dist = dist;
@@ -153,8 +155,8 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
         }
 
         //std::cout << "process " << world_rank << " converged: " << converged << std::endl;
-        MPI_CHECK_ERROR(MPI_Allgather(&converged, sizeof(bool), MPI_CHAR, all_converged, sizeof(bool),
-            MPI_CHAR, MPI_COMM_WORLD));
+        MPI_CHECK_ERROR(MPI_Allgather(&converged, 1, MPI_C_BOOL, all_converged, 1,
+            MPI_C_BOOL, MPI_COMM_WORLD));
         converged = true;
         for(unsigned int p {0}; p < world_size; p++)
             if(!all_converged[p]) {
@@ -166,14 +168,14 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
             std::vector<int> all_assignment(dataset.size());
             int *counts = new int[world_size];
             int *displ = new int[world_size];
-            size_t remaining_items {dataset.size()};
+            int remaining_items {dataset.size()};
             size_t items_unit {(dataset.size() + world_size - 1) / world_size};
             counts[0] = items_unit < remaining_items ? items_unit : (remaining_items);
             displ[0] = 0;
             for(int r {1}; r < world_size; r++){
                 remaining_items -= counts[r-1];
                 counts[r] = items_unit < remaining_items ? items_unit : (remaining_items);
-                displ[r] = displ[r-1] + counts[r];
+                displ[r] = displ[r-1] + counts[r-1];
             }
             MPI_CHECK_ERROR(MPI_Allgatherv(assignment.data(), assignment.size(), MPI_INT, all_assignment.data(),
                 counts, displ, MPI_INT, MPI_COMM_WORLD));
@@ -192,7 +194,7 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
             centres[c] += dataset[i];
             counters[c] += 1u;
         }
-        // exchange centers and centers
+        // exchange centers and counters
         std::vector<size_t> all_counters (K * world_size);
         std::vector<Point<dim>> all_centers (K * world_size);
         MPI_CHECK_ERROR(MPI_Allgather(centres.data(), sizeof(Point<dim>) * K, MPI_CHAR, all_centers.data(),
@@ -219,7 +221,7 @@ void read_dataset(std::vector<Point<dim>>& dataset, const char *filename){
     std::ifstream in {filename};
     unsigned int n_points;
     in >> n_points;
-    float coord[dim];
+    double coord[dim];
     for(unsigned int i {0u}; i < n_points; i++){
         in >> coord[0];
         in >> coord[1];

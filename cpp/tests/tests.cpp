@@ -9,11 +9,11 @@
 
 void test_simple_one_cluster_one_dimension(){
     std::vector<Point<1u>> dataset;
-    float init_values[] {1.0f, 3.f, 2.f};
-    dataset.push_back(Point<1u>(reinterpret_cast<float*>(init_values)));
-    dataset.push_back(Point<1u>(reinterpret_cast<float*>(init_values) + 1));
+    double init_values[] {1.0f, 3.f, 2.f};
+    dataset.push_back(Point<1u>(reinterpret_cast<double*>(init_values)));
+    dataset.push_back(Point<1u>(reinterpret_cast<double*>(init_values) + 1));
    
-    std::vector<Point<1u>> expected_centres {Point<1u>(reinterpret_cast<float*>(init_values) + 2)};
+    std::vector<Point<1u>> expected_centres {Point<1u>(reinterpret_cast<double*>(init_values) + 2)};
     std::vector<Point<1u>> computed_centres;
     std::vector<int> assignment;
     std::tie(computed_centres, assignment) = kmeans(dataset, 1u);
@@ -26,13 +26,13 @@ void test_simple_one_cluster_one_dimension(){
 
 void test_corner_case_1(){
     std::vector<Point<2u>> dataset;
-    float init_values[] {1.0f, 1.0f, 2.f, 2.f};
-    dataset.push_back(Point<2u>(reinterpret_cast<float*>(init_values)));
-    dataset.push_back(Point<2u>(reinterpret_cast<float*>(init_values) + 2));
+    double init_values[] {1.0f, 1.0f, 2.f, 2.f};
+    dataset.push_back(Point<2u>(reinterpret_cast<double*>(init_values)));
+    dataset.push_back(Point<2u>(reinterpret_cast<double*>(init_values) + 2));
    
     std::vector<Point<2>> expected_centres;
-    expected_centres.push_back(Point<2u>(reinterpret_cast<float*>(init_values)));
-    expected_centres.push_back(Point<2u>(reinterpret_cast<float*>(init_values) + 2));
+    expected_centres.push_back(Point<2u>(reinterpret_cast<double*>(init_values)));
+    expected_centres.push_back(Point<2u>(reinterpret_cast<double*>(init_values) + 2));
     std::vector<Point<2u>> computed_centres;
     std::vector<int> assignment;
     std::tie(computed_centres, assignment) = kmeans(dataset, 2u);
@@ -45,8 +45,8 @@ void test_corner_case_1(){
 
 void test_with_dataset(){
     std::vector<Point<2u>> dataset;
-    read_dataset(dataset, "../dataset_10m.txt");
-    float epval[] {49.98271635764928, 0.10708045202278996, -49.993860054024786, -0.1158879815424888};
+    read_dataset(dataset, "../dataset.txt");
+    double epval[] {49.98271635764928, 0.10708045202278996, -49.993860054024786, -0.1158879815424888};
     std::vector<Point<2u>> centres;
     std::vector<int> assignment;
     auto start = std::chrono::steady_clock::now();

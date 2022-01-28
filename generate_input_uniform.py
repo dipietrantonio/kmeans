@@ -1,6 +1,6 @@
 from random import uniform
 
-N = int(1e7)
+N = int(1e8)
 
 fp = open("dataset_10m.txt", "w")
 

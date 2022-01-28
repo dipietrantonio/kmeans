@@ -4,7 +4,7 @@ OBJ=obj
 SRC=src
 IDIR=include
 TESTS=tests
-CXXFLAGS= -O3
+CXXFLAGS= -O0 -g
 
 .PHONY : directories all tests clean
 

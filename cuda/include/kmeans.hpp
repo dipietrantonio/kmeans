@@ -265,29 +265,20 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>> kmeans (std::vector<Point<
     CUDA_CHECK_ERROR(cudaMemcpyToSymbol(globally_converged, &converged_init, sizeof(int)));
     int has_converged;
     Point<dim> *tmp_centres = new Point<dim>[K];
-    int iter {0};
-    cudaGraph_t graph;
-    cudaGraphExec_t instance;
-    cudaStreamBeginCapture(CU_STREAM_PER_THREAD, cudaStreamCaptureModeGlobal);
     while(true){
         kmeans_compute_assignment<<<nblocks, NTHREADS>>>(dev_points, dataset.size(), dev_centres, K, dev_assignment);
-        //CUDA_CHECK_ERROR(cudaGetLastError());
+        CUDA_CHECK_ERROR(cudaGetLastError());
         cudaMemcpy(tmp_centres, dev_centres, sizeof(Point<dim>) * K, cudaMemcpyDeviceToHost);
-        //CUDA_CHECK_ERROR(cudaDeviceSynchronize());
-        for(int s {0}; s < K; s++) std::cout << "Iter " << iter << ": " << tmp_centres[s] << " ";
-        std::cout << std::endl;
-        //CUDA_CHECK_ERROR(cudaDeviceSynchronize());
+        CUDA_CHECK_ERROR(cudaDeviceSynchronize());
+        CUDA_CHECK_ERROR(cudaDeviceSynchronize());
         cudaMemcpyFromSymbol(&has_converged, globally_converged, sizeof(int));
         if(has_converged) break;
         cudaMemcpyToSymbol(globally_converged, &converged_init, sizeof(int));
         cudaMemset(dev_counters, 0, sizeof(int) * K);
         cudaMemset(dev_centres, 0, sizeof(Point<dim>) * K);
         kmeans_compute_centres<<<nblocks, NTHREADS>>>(dev_points, dataset.size(), dev_centres, K, dev_assignment, dev_counters, dev_mutex, dev_block_counters);
-        //CUDA_CHECK_ERROR(cudaDeviceSynchronize());
+        CUDA_CHECK_ERROR(cudaDeviceSynchronize());
     }
-    CUDA_CHECK_ERROR(cudaStreamEndCapture(CU_STREAM_PER_THREAD, &graph));
-    cudaGraphInstantiate(&instance, graph, NULL, NULL, 0);
-    cudaGraphLaunch(instance, CU_STREAM_PER_THREAD);
     cudaStreamSynchronize(CU_STREAM_PER_THREAD);
     // copy back assignment and centres to memory
     std::vector<int> assignment(dataset.size());
