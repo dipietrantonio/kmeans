@@ -6,6 +6,7 @@
 #include <chrono>
 #include "../include/kmeans.hpp"
 #include <sstream>
+#include <sched.h>
 
 void test_simple_one_cluster_one_dimension(){
     std::vector<Point<1u>> dataset;
@@ -64,6 +65,9 @@ void test_with_dataset(){
     std::vector<Point<2u>> dataset;
     int world_rank;
     MPI_CHECK_ERROR(MPI_Comm_rank(MPI_COMM_WORLD, &world_rank));
+    
+    int cpu = sched_getcpu();
+    std::cout << "Rank " << world_rank << " is running on CPU " << cpu <<std::endl;
     if(world_rank == 0)
         read_dataset(dataset, "../dataset.txt");
     double epval[] {49.98271635764928, 0.10708045202278996, -49.993860054024786, -0.1158879815424888};
@@ -82,9 +86,12 @@ void test_with_dataset(){
 
 int main(void){
     MPI_CHECK_ERROR(MPI_Init(NULL, NULL));
-    test_scatter_dataset();
-    test_simple_one_cluster_one_dimension();
-    test_corner_case_1();
+    
+ 
+
+    //test_scatter_dataset();
+    //test_simple_one_cluster_one_dimension();
+    //test_corner_case_1();
     test_with_dataset();
     MPI_CHECK_ERROR(MPI_Finalize());
     std::cout << "All tests passed." << std::endl;
