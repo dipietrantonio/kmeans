@@ -94,11 +94,7 @@ void scatter_dataset(const std::vector<Point<dim>>& dataset_in, std::vector<Poin
     
     unsigned int n_points = 0;    
     if(world_rank == 0) n_points = dataset_in.size();
-    auto start = std::chrono::steady_clock::now();
     MPI_CHECK_ERROR(MPI_Bcast(&n_points, 1, MPI_INT, 0, MPI_COMM_WORLD));
-    auto stop = std::chrono::steady_clock::now();
-     std::cout << "Rank " << world_rank << ", BCAST execution time: " << std::chrono::duration_cast<std::chrono::seconds>(stop-start).count() << std::endl;
-    
     dataset_size = n_points;
 
     int max_points_per_process = ((n_points + world_size - 1) / world_size) * sizeof(Point<dim>);
@@ -114,11 +110,7 @@ void scatter_dataset(const std::vector<Point<dim>>& dataset_in, std::vector<Poin
     }
     size_t n_points_local {send_counts[world_rank]/sizeof(Point<dim>)};
     dataset_out.resize(n_points_local);
-    auto start1 = std::chrono::steady_clock::now();
-    MPI_CHECK_ERROR(MPI_Scatterv(dataset_in.data(), send_counts, displs, MPI_CHAR, (char*) dataset_out.data(), send_counts[world_rank], MPI_CHAR, 0, MPI_COMM_WORLD));
-    auto stop1 = std::chrono::steady_clock::now();
-    std::cout << "Rank " << world_rank << ", Scatterv execution time: " << std::chrono::duration_cast<std::chrono::seconds>(stop1-start1).count() << std::endl;
-   
+    MPI_CHECK_ERROR(MPI_Scatterv(dataset_in.data(), send_counts, displs, MPI_CHAR, (char*) dataset_out.data(), send_counts[world_rank], MPI_CHAR, 0, MPI_COMM_WORLD));   
 }
 
 

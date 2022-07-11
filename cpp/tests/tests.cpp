@@ -25,21 +25,20 @@ void test_simple_one_cluster_one_dimension(){
 
 
 void test_scatter_dataset(){
-
-    std::vector<Point<2u>> dataset;
-    read_dataset(dataset, "tests/test_data.txt");
-    std::vector<Point<2u>> local_dataset;
-    size_t n;
-    scatter_dataset(dataset, local_dataset, n);
     int world_size, world_rank;
     MPI_CHECK_ERROR(MPI_Comm_size(MPI_COMM_WORLD, &world_size));
     MPI_CHECK_ERROR(MPI_Comm_rank(MPI_COMM_WORLD, &world_rank));
-
+    std::vector<Point<2u>> dataset;
+    if(world_rank == 0)
+    read_dataset(dataset, "../dataset.txt");
+    std::vector<Point<2u>> local_dataset;
+    size_t n;
+    scatter_dataset(dataset, local_dataset, n);
     std::stringstream ss;
-    ss << "Rank " << world_rank << ", ds size: " << local_dataset.size() << ", elements: ";
-    for(int i {0}; i < local_dataset.size(); i++) ss << local_dataset[i] << ", ";
-    ss << std::endl;
-    std::cout << ss.str() ;
+    //ss << "Rank " << world_rank << ", ds size: " << local_dataset.size() << ", elements: ";
+    //for(int i {0}; i < local_dataset.size(); i++) ss << local_dataset[i] << ", ";
+    //ss << std::endl;
+    // std::cout << ss.str() ;
 }
 
 
@@ -92,7 +91,7 @@ int main(void){
     //test_scatter_dataset();
     //test_simple_one_cluster_one_dimension();
     //test_corner_case_1();
-    test_with_dataset();
+     test_with_dataset();
     MPI_CHECK_ERROR(MPI_Finalize());
     std::cout << "All tests passed." << std::endl;
 }
