@@ -174,7 +174,8 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
     std::vector<size_t> counters (K, 0);
     do{
         converged = true;
-        for(size_t i {0}; i < local_dataset.size(); i++){
+        #pragma omp parallel for schedule(static)
+        for(size_t i = 0; i < local_dataset.size(); i++){
             Point<dim>& p {local_dataset[i]};
             float best_dist {p.distance(centres[0])};
             int chosen_centre {0};
