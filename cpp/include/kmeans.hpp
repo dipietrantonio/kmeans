@@ -11,7 +11,7 @@
 #include <mpi.h>
 #include <cstring>
 #include <chrono>
-
+#include <omp.h>
 
 char MPI_error_buffer[512];
 int length_of_error_string;
@@ -174,7 +174,9 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
     std::vector<size_t> counters (K, 0);
     do{
         converged = true;
-        #pragma omp parallel for schedule(static)
+        #pragma omp parallel 
+	{ 
+	#pragma omp for schedule(static)
         for(size_t i = 0; i < local_dataset.size(); i++){
             Point<dim>& p {local_dataset[i]};
             float best_dist {p.distance(centres[0])};
@@ -191,6 +193,7 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
                 converged = false;
             }
         }
+	}
 
         MPI_CHECK_ERROR(MPI_Allgather(&converged, 1, MPI_C_BOOL, all_converged, 1,
             MPI_C_BOOL, MPI_COMM_WORLD));
