@@ -96,7 +96,6 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
         std::cerr << "Invalid K value (0)\n";
         throw std::exception();
     }
-    auto start = std::chrono::steady_clock::now();
   
     std::vector<Point<dim>> centres;
     for(int i {0}; i < K; i++) centres.push_back(dataset[i]);
@@ -169,8 +168,6 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
                 centres[i] /= counters[i];
             }
         }
-        if(omp_get_thread_num() == 0)
-        std::cout << "Thread " << omp_get_thread_num() << "end of cycle" << std::endl;
     }while(!converged);
     }
     return {centres, assignment};
