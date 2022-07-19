@@ -117,7 +117,7 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
         
         bool locally_converged = true;
 
-        #pragma omp for schedule(static)
+        #pragma omp for schedule(static) nowait
         for(size_t i = 0; i < dataset.size(); i++){
             Point<dim>& p {dataset[i]};
             float best_dist {p.distance(centres[0])};
@@ -144,7 +144,7 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
             // recompute centres locally
             std::vector<Point<dim>> local_centres (K);
             std::vector<size_t> local_counters (K, 0);
-            #pragma omp for
+            #pragma omp for schedule(static) nowait
             for(size_t i = 0u; i < assignment.size(); i++){
                 int c {assignment[i]};
                 local_centres[c] += dataset[i];
