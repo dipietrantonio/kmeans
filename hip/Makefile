@@ -4,7 +4,7 @@ OBJ=obj
 SRC=src
 IDIR=include
 TESTS=tests
-CXXFLAGS= -O0 -g
+CXXFLAGS=-munsafe-fp-atomics -O3 --offload-arch=gfx90a
 
 .PHONY : directories all tests clean
 

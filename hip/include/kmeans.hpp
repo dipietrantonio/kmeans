@@ -153,7 +153,7 @@ __global__ void kmeans_compute_centres(Point<dim> *points, size_t n_ponts, Point
 
     for(unsigned int i {0u}; i < K; i++){
         Point<dim> local_centre {};
-	local_centre.zero();
+        local_centre.zero();
         unsigned int counter {0u};
         for(unsigned int idx {idx_start}; idx < n_ponts; idx += grid_size){
             if(assignment[idx] == i){
@@ -284,8 +284,6 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>> kmeans (std::vector<Point<
         CUDA_CHECK_ERROR(hipGetLastError());
         CUDA_CHECK_ERROR(hipMemcpy(tmp_centres, dev_centres, sizeof(Point<dim>) * K, hipMemcpyDeviceToHost));
         CUDA_CHECK_ERROR(hipDeviceSynchronize());
-        for(int s {0}; s < K; s++) std::cout << "Iter " << iter << ": " << tmp_centres[s] << " ";
-        std::cout << std::endl;
         iter++;
         CUDA_CHECK_ERROR(hipMemcpyFromSymbol(&has_converged, HIP_SYMBOL(globally_converged), sizeof(int)));
         if(has_converged) break;
@@ -293,8 +291,6 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>> kmeans (std::vector<Point<
         CUDA_CHECK_ERROR(hipMemset(dev_counters, 0, sizeof(int) * K));
         CUDA_CHECK_ERROR(hipMemset(dev_centres, 0, sizeof(Point<dim>) * K));
         hipLaunchKernelGGL(kmeans_compute_centres, dim3(nblocks), dim3(NTHREADS), 0, 0, dev_points, dataset.size(), dev_centres, K, dev_assignment, dev_counters, dev_mutex, dev_block_counters);
-        CUDA_CHECK_ERROR(hipGetLastError());
-        CUDA_CHECK_ERROR(hipDeviceSynchronize());
     }
     // copy back assignment and centres to memory
     std::vector<int> assignment(dataset.size());
