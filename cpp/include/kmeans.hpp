@@ -208,7 +208,7 @@ std::tuple<std::vector<Point<dim>>, std::vector<int>>
             std::vector<int> all_assignment(n_points);
             int *counts = new int[world_size];
             int *displ = new int[world_size];
-            int remaining_items {n_points};
+            int remaining_items {static_cast<int>(n_points)};
             size_t items_unit {(n_points + world_size - 1) / world_size};
             counts[0] = items_unit < remaining_items ? items_unit : (remaining_items);
             displ[0] = 0;
